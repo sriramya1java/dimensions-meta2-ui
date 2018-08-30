@@ -32,7 +32,24 @@
             </v-btn><br>
             <v-btn slot="activator" color="grey" dark icon v-on:click="moveVerticalAxisElement(1)">
               <v-icon>expand_more</v-icon>
-            </v-btn>
+            </v-btn><br>
+            <v-dialog v-model=dialog width="1000" fullscreen transition="dialog-bottom-transition">
+              <v-btn slot="activator" color="grey" dark icon @click="categoriesApiCall('vertical')">
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <v-card>
+                <v-card-title class="headline grey" primary-title dense>
+                  Categories
+                  <v-spacer></v-spacer>
+                  <v-btn slot="activator" icon @click.native="dialog = false">
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <v-card-text>
+                  <categories></categories>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
           </div>
         </v-layout>
         <v-layout row wrap align-center>
@@ -64,7 +81,7 @@
             <v-btn slot="activator" color="grey" dark icon v-on:click="multiselect_rightSelected(dimensionsSelected, dimensionsList, outsideDimensionsList, 'outside')">
               <v-icon>chevron_right</v-icon>
             </v-btn><br>
-            <v-btn slot="activator" color="grey" dark icon v-on:click="multiselect_leftSelected(outsideDimensionsSelected, outsideDimensionsList, dimensionsList, 'vertical')">
+            <v-btn slot="activator" color="grey" dark icon v-on:click="multiselect_leftSelected(outsideDimensionsSelected, outsideDimensionsList, dimensionsList, 'outside')">
               <v-icon>chevron_left</v-icon>
             </v-btn>
           </div>
@@ -88,14 +105,16 @@
   </v-container>
 </template>
 <script>
+  import Categories from '@/components/Categories.vue'
   export default {
+    components: {
+      Categories
+    },
     data () {
       return {
         showalert: false,
-        dimensionsSelected: [],
-        verticalDimensionsSelected: [],
-        outsideDimensionsSelected: [],
-        horizontalDimensionsSelected: []
+        dialog: false,
+        disabled: false
       }
     },
     computed: {
@@ -130,57 +149,105 @@
         set (outsideDimensionsList) {
           this.$store.dispatch('dimensions/updateOutsideDimensionsList', outsideDimensionsList)
         }
+      },
+      dimensionsSelected: {
+        get () {
+          return this.$store.state.dimensions.dimensionsSelected
+        },
+        set (dimensionsSelected) {
+          this.$store.dispatch('dimensions/updateDimensionsSelected', dimensionsSelected)
+        }
+      },
+      verticalDimensionsSelected: {
+        get () {
+          return this.$store.state.dimensions.verticalDimensionsSelected
+        },
+        set (verticalDimensionsSelected) {
+          this.$store.dispatch('dimensions/updateVerticalDimensionsSelected', verticalDimensionsSelected)
+        }
+      },
+      horizontalDimensionsSelected: {
+        get () {
+          return this.$store.state.dimensions.horizontalDimensionsSelected
+        },
+        set (horizontalDimensionsSelected) {
+          this.$store.dispatch('dimensions/updateHorizontalDimensionsSelected', horizontalDimensionsSelected)
+        }
+      },
+      outsideDimensionsSelected: {
+        get () {
+          return this.$store.state.dimensions.outsideDimensionsSelected
+        },
+        set (outsideDimensionsSelected) {
+          this.$store.dispatch('dimensions/updateOutsideDimensionsSelected', outsideDimensionsSelected)
+        }
       }
     },
     methods: {
       // methods to move selected dimensions from dimensions list into respective axes list
       multiselect_rightSelected: function (dimensionsSelected, dimensionsList, axesDimensionsList, axes) {
         // console.log(dimensionsSelected)
-        this.showalert = dimensionsSelected.length === 0
-        dimensionsSelected.forEach(x => {
-          const leftIndex = dimensionsList.findIndex(y => y === x)
-          dimensionsList.splice(leftIndex, 1)
-          const rightIndex = axesDimensionsList.findIndex(z => z === x)
-          if (!(rightIndex > -1)) {
-            axesDimensionsList.push(x)
+        if (dimensionsSelected.length === 0) {
+          this.showalert = true
+        } else {
+          this.showalert = false
+          dimensionsSelected.forEach(x => {
+            const leftIndex = dimensionsList.findIndex(y => y === x)
+            dimensionsList.splice(leftIndex, 1)
+            const rightIndex = axesDimensionsList.findIndex(z => z === x)
+            if (!(rightIndex > -1)) {
+              axesDimensionsList.push(x)
+            }
+          })
+          if (axes === 'vertical') {
+            this.$store.dispatch('dimensions/updateVerticalDimensionsList', axesDimensionsList)
+            this.$store.dispatch('dimensions/updateDimensionsSelected', [])
+          } else if (axes === 'horizontal') {
+            this.$store.dispatch('dimensions/updateHorizontalDimensionsList', axesDimensionsList)
+            this.$store.dispatch('dimensions/updateDimensionsSelected', [])
+          } else if (axes === 'outside') {
+            this.$store.dispatch('dimensions/updateOutsideDimensionsList', axesDimensionsList)
+            this.$store.dispatch('dimensions/updateDimensionsSelected', [])
           }
-        })
-        if (axes === 'vertical') {
-          this.$store.dispatch('dimensions/updateVerticalDimensionsList', axesDimensionsList)
-        } else if (axes === 'horizontal') {
-          this.$store.dispatch('dimensions/updateHorizontalDimensionsList', axesDimensionsList)
-        } else if (axes === 'outside') {
-          this.$store.dispatch('dimensions/updateOutsideDimensionsList', axesDimensionsList)
         }
       },
       // methods to move selected axes dimensions from dimensions list dimensions list
       multiselect_leftSelected: function (axesDimensionsSelected, axesDimensionsList, dimensionsList, axes) {
-        this.showalert = axesDimensionsSelected.length === 0
-        axesDimensionsSelected.forEach(x => {
-          const rightIndex = axesDimensionsList.findIndex(y => y === x)
-          axesDimensionsList.splice(rightIndex, 1)
-          const leftIndex = dimensionsList.findIndex(z => z === x)
-          if (!(leftIndex > -1)) {
-            dimensionsList.push(x)
+        if (axesDimensionsSelected.length === 0) {
+          this.showalert = true
+        } else {
+          this.showalert = false
+          axesDimensionsSelected.forEach(x => {
+            const rightIndex = axesDimensionsList.findIndex(y => y === x)
+            axesDimensionsList.splice(rightIndex, 1)
+            const leftIndex = dimensionsList.findIndex(z => z === x)
+            if (!(leftIndex > -1)) {
+              dimensionsList.push(x)
+            }
+          })
+          if (axes === 'vertical') {
+            // console.log(axesDimensionsList)
+            this.$store.dispatch('dimensions/updateVerticalDimensionsList', axesDimensionsList)
+            this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
+            this.$store.dispatch('dimensions/updateVerticalDimensionsSelected', [])
+          } else if (axes === 'horizontal') {
+            // console.log(axesDimensionsList)
+            this.$store.dispatch('dimensions/updateHorizontalDimensionsList', axesDimensionsList)
+            this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
+            this.$store.dispatch('dimensions/updateHorizontalDimensionsSelected', [])
+          } else if (axes === 'outside') {
+            // console.log(axesDimensionsList)
+            this.$store.dispatch('dimensions/updateOutsideDimensionsList', axesDimensionsList)
+            this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
+            this.$store.dispatch('dimensions/updateOutsideDimensionsSelected', [])
           }
-        })
-        if (axes === 'vertical') {
-          // console.log(axesDimensionsList)
-          this.$store.dispatch('dimensions/updateVerticalDimensionsList', axesDimensionsList)
-          this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
-        } else if (axes === 'horizontal') {
-          // console.log(axesDimensionsList)
-          this.$store.dispatch('dimensions/updateHorizontalDimensionsList', axesDimensionsList)
-          this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
-        } else if (axes === 'outside') {
-          // console.log(axesDimensionsList)
-          this.$store.dispatch('dimensions/updateOutsideDimensionsList', axesDimensionsList)
-          this.$store.commit('dimensions/SET_DIMENSIONS', dimensionsList)
         }
       },
       moveVerticalAxisElement: function (positionChange) {
         if (this.verticalDimensionsSelected.length > 1) {
           alert('please select only one dimension')
+        } else if (this.verticalDimensionsSelected.length === 0) {
+          alert('please select atleast one dimension')
         } else {
           let oldIndex = this.verticalDimensionsList.findIndex(y => y.label === this.verticalDimensionsSelected[0].label)
           if (oldIndex > -1) {
@@ -198,12 +265,15 @@
           }
           console.log(this.verticalDimensionsList)
           this.$store.dispatch('dimensions/updateVerticalDimensionsList', this.verticalDimensionsList)
+          this.$store.dispatch('dimensions/updateVerticalDimensionsSelected', [])
           return this.verticalDimensionsList
         }
       },
       moveHorizontalAxisElement: function (positionChange) {
         if (this.horizontalDimensionsSelected.length > 1) {
           alert('please select only one dimension')
+        } else if (this.horizontalDimensionsSelected.length === 0) {
+          alert('please select atleast one dimension')
         } else {
           let oldIndex = this.horizontalDimensionsList.findIndex(y => y.label === this.horizontalDimensionsSelected[0].label)
           if (oldIndex > -1) {
@@ -221,12 +291,15 @@
           }
           console.log(this.horizontalDimensionsList)
           this.$store.dispatch('dimensions/updateHorizontalDimensionsList', this.horizontalDimensionsList)
+          this.$store.dispatch('dimensions/updateHorizontalDimensionsSelected', [])
           return this.horizontalDimensionsList
         }
       },
       moveOutsideAxisElement: function (positionChange) {
         if (this.outsideDimensionsSelected.length > 1) {
           alert('please select only one dimension')
+        } else if (this.outsideDimensionsSelected.length === 0) {
+          alert('please select atleast one dimension')
         } else {
           let oldIndex = this.outsideDimensionsList.findIndex(y => y.label === this.outsideDimensionsSelected[0].label)
           if (oldIndex > -1) {
@@ -244,6 +317,7 @@
           }
           console.log(this.outsideDimensionsList)
           this.$store.dispatch('dimensions/updateOutsideDimensionsList', this.outsideDimensionsList)
+          this.$store.dispatch('dimensions/updateOutsideDimensionsSelected', [])
           return this.outsideDimensionsList
         }
       }

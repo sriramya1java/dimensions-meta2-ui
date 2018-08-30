@@ -6,54 +6,54 @@ const state = {
     'label': 'Age Group',
     'editable': true
   },
-  {
-    'id': 'DATE_',
-    'type': 'SIMPLE',
-    'label': 'Date',
-    'editable': true
-  },
-  {
-    'id': 'DATE_DESC',
-    'type': 'SIMPLE',
-    'label': 'Description of DATE values',
-    'editable': true
-  },
-  {
-    'id': 'HISP',
-    'type': 'SIMPLE',
-    'label': 'Hispanic Origin',
-    'editable': true
-  },
-  {
-    'id': 'RACE',
-    'type': 'SIMPLE',
-    'label': 'Race',
-    'editable': true
-  },
-  {
-    'id': 'SEX',
-    'type': 'SIMPLE',
-    'label': 'Sex',
-    'editable': true
-  },
-  {
-    'id': 'UNIVERSE',
-    'type': 'SIMPLE',
-    'label': 'Universe',
-    'editable': true
-  },
-  {
-    'id': 'MEASURE',
-    'type': 'MEASURE',
-    'label': 'Measure',
-    'editable': true
-  },
-  {
-    'id': 'GCT',
-    'type': 'GCT',
-    'label': 'Gct',
-    'editable': false
-  }],
+    {
+      'id': 'DATE_',
+      'type': 'SIMPLE',
+      'label': 'Date',
+      'editable': true
+    },
+    {
+      'id': 'DATE_DESC',
+      'type': 'SIMPLE',
+      'label': 'Description of DATE values',
+      'editable': true
+    },
+    {
+      'id': 'HISP',
+      'type': 'SIMPLE',
+      'label': 'Hispanic Origin',
+      'editable': true
+    },
+    {
+      'id': 'RACE',
+      'type': 'SIMPLE',
+      'label': 'Race',
+      'editable': true
+    },
+    {
+      'id': 'SEX',
+      'type': 'SIMPLE',
+      'label': 'Sex',
+      'editable': true
+    },
+    {
+      'id': 'UNIVERSE',
+      'type': 'SIMPLE',
+      'label': 'Universe',
+      'editable': true
+    },
+    {
+      'id': 'MEASURE',
+      'type': 'MEASURE',
+      'label': 'Measure',
+      'editable': true
+    },
+    {
+      'id': 'GCT',
+      'type': 'GCT',
+      'label': 'Gct',
+      'editable': false
+    }],
   verticalDimensionsList: [],
   horizontalDimensionsList: [],
   outsideDimensionsList: [],
